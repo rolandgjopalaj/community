@@ -1,0 +1,11 @@
+
+.right{
+    width: 30%;
+    padding: 10px;
+    position: absolute;
+    right: 370;
+}
+.center{
+    position: absolute;
+    left: 45;
+}
