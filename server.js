@@ -3,6 +3,7 @@ const session = require('express-session');
 const http = require("http")
 const https = require("https")
 const bodyParser = require("body-parser");
+const mysql = require("mysql")
 
 const app = express()
 const router = express.Router();
@@ -36,6 +37,19 @@ app.use(express.static("public"));
 
 app.use('/', router);
 
+////////////////////////////////////////////////////
+// MySql database connection
+function dbConn()
+{
+    const conn = mysql.createConnection({
+        host: "localhost",
+        user: "root",
+        password: "",
+        database: "session"
+      });
+    return conn;
+}
+  
 /////////////////////////////////////////////
 // Requests from the clients
 
@@ -43,22 +57,17 @@ app.use('/', router);
 router.get('/',(req,res) => {
     if(req.session.user) {
         //send user to the /user_profile request to get his data
-        res.redirect("/user_profile")
+        res.redirect("user/?user="+req.session.user+"")
     }
     else {//send user to the home page
         res.redirect("home")
     }
 });
 
-//user request for accessing user area
-router.get("/user_profile", (req, res)=>{
-        res.redirect("user/?user="+req.session.user+"")
-})
-
 //user request for the relative reservated data
 router.post("/user_data", (req, res)=>{
     const type=req.body.type;// get the type of the request 
-    if(type === "user-data")
+    if(type === "user-data" && req.session.flag)
     {   // send to the user the data
         res.json({
             message: "Hello2",
@@ -71,7 +80,7 @@ router.post("/user_data", (req, res)=>{
 //user request for the "comunity shared data" 
 router.post("/shared_data", (req, res)=>{
     const type=req.body.type;// get the type of the request 
-    if(type === "shared-data")
+    if(type === "shared-data" && req.session.flag)
     {   // send to the user the data
         res.json({
             autor: "USER 2",
@@ -82,8 +91,26 @@ router.post("/shared_data", (req, res)=>{
 
 //login request
 router.post('/login',(req,res) => {
-    req.session.user = req.body.username;
-    res.redirect("/")
+    ///////////////////////////////////////////////////////////
+    // database controll
+    const db= dbConn();
+    db.connect(function(err) {
+        if (err) throw err;
+            db.query("SELECT * FROM utenti where utenti.username='"+req.body.username+"'", function (err, result, fields) {
+                if (err) throw err;
+                
+                try{
+                    if(result[0].password === req.body.password)
+                    {// if the password is correct the user will be authenticated
+                        req.session.user = req.body.username;
+                        req.session.flag = true;
+                        res.redirect("/") 
+                    }
+                }catch(error){
+                    res.redirect("log") 
+                }
+            });
+    });
 });
 
 //logout request
