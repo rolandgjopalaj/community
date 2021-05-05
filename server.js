@@ -15,21 +15,21 @@ const httpsPort = 443;
 const httpServer = http.createServer(app)
 
 httpServer.listen(httpPort, ()=>{
-    console.log("http server is listenig on port 80 ....")
+    console.log("http server is listenig on port "+httpPort+" ....")
 })
 
 ////////////////////////////////////
 // Https server
 /*
 const httpsServer = https.createServer(app, certificate) 
-httpServer.listen(httpPort, ()=>{
-    console.log("http server is listenig on port 80 ....")
+httpsServer.listen(httpsPort, ()=>{
+    console.log("http server is listenig on port "+httpsPort+" ....")
 })
 */
 
 // SESSION
 app.use(session({
-    secret: 'pimpa'
+    secret: 'pimpa-secret'
 }));
 app.use(bodyParser.json());      
 app.use(bodyParser.urlencoded({extended: true}));
@@ -39,13 +39,13 @@ app.use('/', router);
 
 ////////////////////////////////////////////////////
 // MySql database connection
-function dbConn()
+function dbConn(dbName, dbPass)
 {
     const conn = mysql.createConnection({
         host: "localhost",
         user: "root",
-        password: "",
-        database: "session"
+        password: dbPass,
+        database: dbName
       });
     return conn;
 }
@@ -57,7 +57,7 @@ function dbConn()
 router.get('/',(req,res) => {
     if(req.session.user) {
         //send user to the /user_profile request to get his data
-        res.redirect("user/?user="+req.session.user+"")
+        res.redirect("user")
     }
     else {//send user to the home page
         res.redirect("home")
@@ -66,25 +66,24 @@ router.get('/',(req,res) => {
 
 //user request for the relative reservated data
 router.post("/user_data", (req, res)=>{
-    const type=req.body.type;// get the type of the request 
-    if(type === "user-data" && req.session.flag)
+    if(req.session.user)
     {   // send to the user the data
         res.json({
-            message: "Hello2",
-            data: "data2",
-            kot: "kot2"
+            user: req.session.user,
+            message: "Hello22",
+            data: "data22",
+            kot: "kot22"
         })
     }
 })
 
 //user request for the "comunity shared data" 
 router.post("/shared_data", (req, res)=>{
-    const type=req.body.type;// get the type of the request 
-    if(type === "shared-data" && req.session.flag)
+    if(req.session.user)
     {   // send to the user the data
         res.json({
-            autor: "USER 2",
-            coment: "coment 2"
+            autor: "USER 22",
+            coment: "coment 22"
         })
     }
 })
@@ -92,18 +91,16 @@ router.post("/shared_data", (req, res)=>{
 //login request
 router.post('/login',(req,res) => {
     ///////////////////////////////////////////////////////////
-    // database controll
-    const db= dbConn();
+    // database controll for the authentication
+    const db = dbConn("session", "");
     db.connect(function(err) {
         if (err) throw err;
             db.query("SELECT * FROM utenti where utenti.username='"+req.body.username+"'", function (err, result, fields) {
                 if (err) throw err;
-                
                 try{
                     if(result[0].password === req.body.password)
                     {// if the password is correct the user will be authenticated
                         req.session.user = req.body.username;
-                        req.session.flag = true;
                         res.redirect("/") 
                     }
                 }catch(error){
