@@ -17,7 +17,7 @@ fetch("/user_data", request).then(res=>res.json().then(data=>{
 }))
 
 fetch("/shared_data", request).then(res=>res.json().then(data=>{
-    
+    console.log(data)
     addSharedData(data)
 }))
 
@@ -97,7 +97,7 @@ function addSharedData(sharedData)
     sharedData.forEach(postEl => {   //for each post
         newArea = newArea +
             startNewPostArea+  //add the start post html code
-            post(postEl.autor,"dd",postEl.post)+   //add the post html code
+            post(postEl.author,"dd",postEl.post)+   //add the post html code
             startNewComentsArea; //add te start of the comments area html code
 
         const comm=postEl.comments; //get the comments of a post 

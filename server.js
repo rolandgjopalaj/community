@@ -81,42 +81,51 @@ router.post("/user_data", (req, res)=>{
 router.post("/shared_data", (req, res)=>{
     if(req.session.user)
     {   // send to the user the data
-        res.json(
-            [
-                {
-                    autor: "USERererw 1",
-                    post: "post 1",
-                    comments: [
+        const db = dbConn("community", "");
+
+db.connect(function(err) {
+    if (err) throw err;
+        var posts = []
+        db.query("SELECT users.name, posts.id, posts.content FROM posts, users where users.id=posts.user;", function (err, result, fields) {
+            if (err) throw err;
+            try{
+                result.forEach(post => {
+                    var comments= []
+                    db.query("select users.name, comments.id, comments.content, comments.post as post from users, comments where comments.user=users.id and comments.post ="+post.id+";", function (err, result2, fields){
+                        if (err) throw err;
+                    
+                        ////////////
+                        result2.forEach(comm =>{
+                            comments.push(
+                                {
+                                    id: comm.id,
+                                    user: comm.name,
+                                    comment: comm.content
+                                }
+                            )
+                        })
+                        ////////////
+                        console.log(comments)
+                    })
+                    ////////////////////////
+                    posts.push(
                         {
-                            id:1,
-                            user: "user1",
-                            comment: "coment1"
-                        },
-                        {
-                            id: 2,
-                            user: "user2",
-                            comment: "coment2"
+                            author: post.name,
+                            post: post.content,
+                            id: post.id,
+                            comments: comments
                         }
-                    ]
-                },
-                {
-                    autor: "USER 2",
-                    post: "cpost 2",
-                    comments: [
-                        {
-                            id:1,
-                            user: "user11",
-                            comment: "coment11"
-                        },
-                        {
-                            id: 2,
-                            user: "user22",
-                            comment: "coment22"
-                        }
-                    ]
-                }
-            ]
-        )
+                    )
+                    //////////////////////
+                    
+                });
+                //send the data to the client
+                res.json(posts)
+            }catch(error){
+                console.log(error)
+            }
+        });
+});
     }
 })
 
@@ -152,6 +161,5 @@ router.get('/logout',(req,res) => {
     });
 
 });
-
 
 
