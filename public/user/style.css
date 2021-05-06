@@ -1,14 +1,14 @@
 body{
     margin-top:20px;
-    background-color:#e9ebee;
+    background-color:#2f2c3d;
 }
 
 .be-comment-block {
     margin-bottom: 50px !important;
-    border: 1px solid #edeff2;
+    border: 1px solid #2f2c3d;
     border-radius: 2px;
     padding: 50px 70px;
-    border:1px solid #ffffff;
+    border:1px solid #2f2c3d;
 }
 
 .comments-title {
@@ -70,8 +70,8 @@ body{
     line-height: 18px;
     color: #7a8192;
     display: block;
-    background: #f6f6f7;
-    border: 1px solid #edeff2;
+    background: #2f2c3d;
+    border: 1px solid #2f2c3d;
     padding: 15px 20px 20px 20px;
 }
 
@@ -81,7 +81,7 @@ body{
     left: 16px;
     width: 48px;
     height: 48px;
-    background: #f6f6f7;
+    background: #2f2c3d;
     color: #b5b8c2;
     text-align: center;
     line-height: 50px;
@@ -102,7 +102,7 @@ body{
     height: 50px;
     padding-left: 20px;
     padding-right: 20px;
-    border: 1px solid #edeff2;
+    border: 1px solid #2f2c3d;
     border-radius: 3px;
 }
 
@@ -114,7 +114,10 @@ body{
     height: 150px;
 }
 
-
+.form-input {
+    background-color:#413e52;
+    color: #ffffff;
+}
 
 
 
