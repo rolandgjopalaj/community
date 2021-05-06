@@ -18,9 +18,7 @@ fetch("/user_data", request).then(res=>res.json().then(data=>{
 
 fetch("/shared_data", request).then(res=>res.json().then(data=>{
     
-    document.getElementById("user1").innerText= data.autor;
-    document.getElementById("coment").innerText= data.coment;
-    
+    addSharedData(data)
 }))
 
 /////////////////////////////////
@@ -92,16 +90,26 @@ const startNewComentsArea = '<div class="be-comment-block">';
 
 
 //html to add the posts and the comments in the user page
-var div = document.createElement("div");
+function addSharedData(sharedData)
+{
+    var newArea="";
 
-const newArea = startNewPostArea + 
-                post("userr","dd","p1")+
-                startNewComentsArea+
-                comment("user","date","comm")+
-                comment("user1","date2","comm2")+
-                commentForm+
-                '</div></div>';
+    sharedData.forEach(postEl => {   //for each post
+        newArea = newArea +
+            startNewPostArea+  //add the start post html code
+            post(postEl.autor,"dd",postEl.post)+   //add the post html code
+            startNewComentsArea; //add te start of the comments area html code
 
-div.innerHTML =newArea;
+        const comm=postEl.comments; //get the comments of a post 
+        comm.forEach(commEl =>{  //for each comment
+            newArea = newArea + comment(commEl.user,"date",commEl.comment); //add the comment html code
 
-document.body.appendChild(div);
+        });
+        
+        newArea = newArea +commentForm+ '</div></div>';//close the html code
+    });
+
+    //add all the html code
+    document.getElementById("postsArea").innerHTML =newArea;
+
+}

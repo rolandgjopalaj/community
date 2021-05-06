@@ -81,10 +81,42 @@ router.post("/user_data", (req, res)=>{
 router.post("/shared_data", (req, res)=>{
     if(req.session.user)
     {   // send to the user the data
-        res.json({
-            autor: "USER 22",
-            coment: "coment 22"
-        })
+        res.json(
+            [
+                {
+                    autor: "USERererw 1",
+                    post: "post 1",
+                    comments: [
+                        {
+                            id:1,
+                            user: "user1",
+                            comment: "coment1"
+                        },
+                        {
+                            id: 2,
+                            user: "user2",
+                            comment: "coment2"
+                        }
+                    ]
+                },
+                {
+                    autor: "USER 2",
+                    post: "cpost 2",
+                    comments: [
+                        {
+                            id:1,
+                            user: "user11",
+                            comment: "coment11"
+                        },
+                        {
+                            id: 2,
+                            user: "user22",
+                            comment: "coment22"
+                        }
+                    ]
+                }
+            ]
+        )
     }
 })
 
