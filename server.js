@@ -10,6 +10,15 @@ const router = express.Router();
 const httpPort = 80;
 const httpsPort = 443;
 
+//db
+var pool = mysql.createPool({
+    connectionLimit: 5,
+    host: "localhost",
+    user: "root",
+    password: "",
+    database: "community"
+});
+
 //////////////////////////////////////////////////
 // Http server 
 const httpServer = http.createServer(app)
@@ -77,57 +86,52 @@ router.post("/user_data", (req, res)=>{
     }
 })
 
-//user request for the "comunity shared data" 
-router.post("/shared_data", (req, res)=>{
-    if(req.session.user)
-    {   // send to the user the data
-        const db = dbConn("community", "");
-
-db.connect(function(err) {
-    if (err) throw err;
-        var posts = []
-        db.query("SELECT users.name, posts.id, posts.content FROM posts, users where users.id=posts.user;", function (err, result, fields) {
+//get the posts
+router.post("/posts", (req, res)=>{
+    if(true)//req.session.user)
+    {   var posts = []
+        pool.query("SELECT users.name, posts.id, posts.content FROM posts, users where users.id=posts.user;", 
+        (err, result, fields) =>{
             if (err) throw err;
-            try{
-                result.forEach(post => {
-                    var comments= []
-                    db.query("select users.name, comments.id, comments.content, comments.post as post from users, comments where comments.user=users.id and comments.post ="+post.id+";", function (err, result2, fields){
-                        if (err) throw err;
-                    
-                        ////////////
-                        result2.forEach(comm =>{
-                            comments.push(
-                                {
-                                    id: comm.id,
-                                    user: comm.name,
-                                    comment: comm.content
-                                }
-                            )
-                        })
-                        ////////////
-                        console.log(comments)
-                    })
-                    ////////////////////////
-                    posts.push(
-                        {
-                            author: post.name,
-                            post: post.content,
-                            id: post.id,
-                            comments: comments
-                        }
-                    )
-                    //////////////////////
-                    
-                });
-                //send the data to the client
-                res.json(posts)
-            }catch(error){
-                console.log(error)
-            }
+            result.forEach(post => {
+                posts.push(
+                    {
+                    author: post.name,
+                    post: post.content,
+                    id: post.id,
+                    comments: []
+                    }
+                )
+            });
+            res.json(posts)
         });
-});
     }
 })
+//get the comments of a post
+router.post("/comments", (req, res)=>{
+    if(true)//req.session.user)
+    {
+        const id=req.body.type
+        var comments= []
+        pool.query("select users.name, comments.id, comments.content, comments.post as post from users, comments where comments.user=users.id and comments.post ="+id+";", 
+                (err, result2, fields)=>{
+                    if (err) throw err;
+                    ////////////
+                    result2.forEach(comm =>{
+                        comments.push(
+                            {
+                            id: comm.id,
+                            user: comm.name,
+                            comment: comm.content
+                            }
+                        )
+                    })
+                    ///////////
+                    res.json(comments)
+                })
+    }
+})
+
 
 //login request
 router.post('/login',(req,res) => {
@@ -161,5 +165,3 @@ router.get('/logout',(req,res) => {
     });
 
 });
-
-

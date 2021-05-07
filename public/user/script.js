@@ -1,13 +1,16 @@
 //to create a request 
-const request ={
-    method: "post",
-    headers: {
-        "Content-Type" : "application/json"
-    },
-    body: JSON.stringify({type: ""})
+function request(type){
+    const req ={
+        method: "post",
+        headers: {
+            "Content-Type" : "application/json"
+        },
+        body: JSON.stringify({type: type})
+    }
+    return req
 }
 
-fetch("/user_data", request).then(res=>res.json().then(data=>{
+fetch("/user_data", request("")).then(res=>res.json().then(data=>{
 
     document.getElementById("username").innerText= data.user;
     document.getElementById("message").innerText= data.message;
@@ -16,11 +19,15 @@ fetch("/user_data", request).then(res=>res.json().then(data=>{
     
 }))
 
-fetch("/shared_data", request).then(res=>res.json().then(data=>{
-    console.log(data)
-    addSharedData(data)
+fetch("/posts", request("")).then(res=>res.json().then(dataP=>{
+    var posts=dataP
+    posts.forEach(postEl=>{
+        fetch("/comments", request(postEl.id)).then(res=>res.json().then(dataC=>{
+            postEl.comments=dataC
+        }))
+    })
+    addSharedData(posts)
 }))
-
 /////////////////////////////////
 //           HTML
 //html to create a post
@@ -90,20 +97,23 @@ const startNewComentsArea = '<div class="be-comment-block">';
 
 
 //html to add the posts and the comments in the user page
-function addSharedData(sharedData)
+function addSharedData(data)
 {
+    var sharedData=data
+    console.log(sharedData)
     var newArea="";
 
     sharedData.forEach(postEl => {   //for each post
+      
         newArea = newArea +
             startNewPostArea+  //add the start post html code
             post(postEl.author,"dd",postEl.post)+   //add the post html code
             startNewComentsArea; //add te start of the comments area html code
 
         const comm=postEl.comments; //get the comments of a post 
+        console.log(comm)
         comm.forEach(commEl =>{  //for each comment
             newArea = newArea + comment(commEl.user,"date",commEl.comment); //add the comment html code
-
         });
         
         newArea = newArea +commentForm+ '</div></div>';//close the html code
