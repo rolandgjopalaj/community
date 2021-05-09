@@ -36,16 +36,16 @@ getSharedData()
 /////////////////////////////////
 //           HTML
 //html to create a post
-function post(user, date, _post)
+function post(user, date, _post, userimg)
 {
     const post=
         '<div class="be-comment">'+
         '	<div class="be-img-comment">'+	
-        '		<img src="userimg" alt="" class="be-ava-comment">'+
+        '		<img src="'+userimg+'" alt="" class="be-ava-comment">'+
         '	</div>'+
         '	<div class="be-comment-content">'+
         '		<span class="be-comment-name">'+
-        '			<h2>'+user+'</h2>'+
+        '			<h4>'+user+'</h4>'+
         '		</span>'+
         '		<span class="be-comment-time">'+
         '			<i class="fa fa-clock-o"></i>'+
@@ -60,16 +60,16 @@ function post(user, date, _post)
 }
 
 //html to create a comment
-function comment(user, date, comment)
+function comment(user, date, comment, userimg)
 {
     const comm=
         '<div class="be-comment">'+
         '	<div class="be-img-comment">'+	
-        '		<img src="userimg" alt="" class="be-ava-comment">'+
+        '		<img src="'+userimg+'" alt="" class="be-ava-comment">'+
         '	</div>'+
         '	<div class="be-comment-content">'+
         '		<span class="be-comment-name">'+
-        '			<h4>'+user+'</h4>'+
+        '			<h6>'+user+'</h6>'+
         '		</span>'+
         '		<span class="be-comment-time">'+
         '			<i class="fa fa-clock-o"></i>'+
@@ -112,19 +112,18 @@ function addSharedData(sharedData)
     var newArea="";
     const posts=sharedData[0]
     const comments=sharedData[1]
-
     posts.forEach(postEl => {   //for each post
       
         newArea = newArea +
             startNewPostArea+  //add the start post html code
-            post(postEl.name,"dd",postEl.content)+   //add the post html code
+            post(postEl.name,"dd",postEl.content,postEl.photo)+   //add the post html code
             startNewComentsArea; //add te start of the comments area html code
 
         const comms = comments.filter(el => el.post==postEl.id);
 
         console.log(comms)
         comms.forEach(commEl =>{  //for each comment
-            newArea = newArea + comment(commEl.name,"date",commEl.content); //add the comment html code
+            newArea = newArea + comment(commEl.name,"date",commEl.content, commEl.photo); //add the comment html code
         });
         
         newArea = newArea +commentForm(postEl.id)+ '</div></div>';//close the html code

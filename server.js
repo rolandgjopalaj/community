@@ -109,7 +109,7 @@ router.post("/user_data", (req, res)=>{
 router.post("/posts", (req, res)=>{
     if(true)//req.session.user)
     {   //select all the posts 
-        pool.query("SELECT users.name, posts.id, posts.content FROM posts, users where users.id=posts.user;", 
+        pool.query("SELECT users.name, posts.id, posts.content, users.photo FROM posts, users where users.id=posts.user;", 
         (err, result, fields) =>{
             if (err) throw err;
             //send it to the client
@@ -122,7 +122,7 @@ router.post("/posts", (req, res)=>{
 router.post("/comments", (req, res)=>{
     if(true)//req.session.user)
     {   //select all the comments 
-        pool.query("select users.name, comments.id, comments.content, comments.post as post from users, comments, posts where comments.user=users.id and comments.post =posts.id;", 
+        pool.query("select users.name, comments.id, comments.content, comments.post, users.photo from users, comments, posts where comments.user=users.id and comments.post =posts.id;", 
         (err, result, fields)=>{
             if (err) throw err;
             //send it to the client

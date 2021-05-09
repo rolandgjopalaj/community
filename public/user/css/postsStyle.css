@@ -26,8 +26,8 @@ body{
 }
 
 .be-ava-comment {
-    width: 60px;
-    height: 60px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
 }
 
@@ -70,9 +70,11 @@ body{
     line-height: 18px;
     color: #7a8192;
     display: block;
-    background: #2f2c3d;
+    background: #322f3f;
     border: 1px solid #2f2c3d;
     padding: 15px 20px 20px 20px;
+    display: block;
+    content: '\A'; 
 }
 
 .form-group.fl_icon .icon {
