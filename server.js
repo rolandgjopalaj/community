@@ -10,7 +10,8 @@ const router = express.Router();
 const httpPort = 80;
 const httpsPort = 443;
 
-//db
+////////////////////////////////////////////////////
+// MySql database connection
 var pool = mysql.createPool({
     connectionLimit: 5,
     host: "localhost",
@@ -46,19 +47,6 @@ app.use(express.static("public"));
 
 app.use('/', router);
 
-////////////////////////////////////////////////////
-// MySql database connection
-function dbConn(dbName, dbPass)
-{
-    const conn = mysql.createConnection({
-        host: "localhost",
-        user: "root",
-        password: dbPass,
-        database: dbName
-      });
-    return conn;
-}
-  
 /////////////////////////////////////////////
 // Requests from the clients
 
@@ -71,6 +59,37 @@ router.get('/',(req,res) => {
     else {//send user to the home page
         res.redirect("home")
     }
+});
+
+//login request
+router.post('/login',(req,res) => {
+    ///////////////////////////////////////////////////////////
+    // database controll for the authentication
+    pool.query("SELECT username, user FROM auth where username='"+req.body.username+"' and password='"+req.body.password+"' ;", 
+    (err, result, fields) => {
+        if (err) throw err;
+        try{
+            if(result[0].username === req.body.username)
+            {// if the password is correct the user will be authenticated
+                req.session.user = req.body.username;
+                req.session.idUser = result[0].user;
+                res.redirect("/") 
+            }
+        }catch(error){
+            res.redirect("log") 
+        }
+    });
+});
+
+//logout request
+router.get('/logout',(req,res) => {
+    req.session.destroy((err) => {
+        if(err) {
+            return console.log(err);
+        }
+        res.redirect('/');
+    });
+
 });
 
 //user request for the relative reservated data
@@ -89,79 +108,37 @@ router.post("/user_data", (req, res)=>{
 //get the posts
 router.post("/posts", (req, res)=>{
     if(true)//req.session.user)
-    {   var posts = []
+    {   //select all the posts 
         pool.query("SELECT users.name, posts.id, posts.content FROM posts, users where users.id=posts.user;", 
         (err, result, fields) =>{
             if (err) throw err;
-            result.forEach(post => {
-                posts.push(
-                    {
-                    author: post.name,
-                    post: post.content,
-                    id: post.id,
-                    comments: []
-                    }
-                )
-            });
-            res.json(posts)
+            //send it to the client
+            res.json(result)
         });
     }
 })
+
 //get the comments of a post
 router.post("/comments", (req, res)=>{
     if(true)//req.session.user)
-    {
-        const id=req.body.type
-        var comments= []
-        pool.query("select users.name, comments.id, comments.content, comments.post as post from users, comments where comments.user=users.id and comments.post ="+id+";", 
-                (err, result2, fields)=>{
-                    if (err) throw err;
-                    ////////////
-                    result2.forEach(comm =>{
-                        comments.push(
-                            {
-                            id: comm.id,
-                            user: comm.name,
-                            comment: comm.content
-                            }
-                        )
-                    })
-                    ///////////
-                    res.json(comments)
-                })
+    {   //select all the comments 
+        pool.query("select users.name, comments.id, comments.content, comments.post as post from users, comments, posts where comments.user=users.id and comments.post =posts.id;", 
+        (err, result, fields)=>{
+            if (err) throw err;
+            //send it to the client
+            res.json(result)
+        })
     }
 })
 
-
-//login request
-router.post('/login',(req,res) => {
-    ///////////////////////////////////////////////////////////
-    // database controll for the authentication
-    const db = dbConn("session", "");
-    db.connect(function(err) {
-        if (err) throw err;
-            db.query("SELECT * FROM utenti where utenti.username='"+req.body.username+"'", function (err, result, fields) {
-                if (err) throw err;
-                try{
-                    if(result[0].password === req.body.password)
-                    {// if the password is correct the user will be authenticated
-                        req.session.user = req.body.username;
-                        res.redirect("/") 
-                    }
-                }catch(error){
-                    res.redirect("log") 
-                }
-            });
-    });
-});
-
-//logout request
-router.get('/logout',(req,res) => {
-    req.session.destroy((err) => {
-        if(err) {
-            return console.log(err);
-        }
-        res.redirect('/');
-    });
-
-});
+//add a comment to a post
+router.post("/addComment", (req, res)=>{
+    if(true)//req.session.user)
+    {   // insert the new comment
+        pool.query("insert into comments (content, post, user) values ('"+req.body.comm+"', "+req.body.post+", "+req.session.idUser+");", 
+        (err, result, fields)=>{
+            if (err) throw err;
+        })
+        res.redirect("/")
+    }
+})
