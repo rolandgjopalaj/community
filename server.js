@@ -4,6 +4,7 @@ const http = require("http")
 const https = require("https")
 const bodyParser = require("body-parser");
 const mysql = require("mysql")
+var fs = require('fs');
 
 const app = express()
 const router = express.Router();
@@ -16,7 +17,7 @@ var pool = mysql.createPool({
     connectionLimit: 5,
     host: "localhost",
     user: "root",
-    password: "",
+    password: "root",
     database: "community"
 });
 
@@ -30,12 +31,17 @@ httpServer.listen(httpPort, ()=>{
 
 ////////////////////////////////////
 // Https server
-/*
-const httpsServer = https.createServer(app, certificate) 
+
+const  privateKey  = fs.readFileSync('key/privkey.pem', 'utf8');
+const certificate = fs.readFileSync('key/cert.pem', 'utf8');
+const ca = fs.readFileSync('key/chain.pem','utf8');
+const credentials = {key: privateKey, cert: certificate, ca:ca};
+
+const httpsServer = https.createServer(credentials, app) 
 httpsServer.listen(httpsPort, ()=>{
     console.log("http server is listenig on port "+httpsPort+" ....")
 })
-*/
+
 
 // SESSION
 app.use(session({
