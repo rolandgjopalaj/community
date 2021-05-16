@@ -148,3 +148,14 @@ router.post("/addComment", (req, res)=>{
         res.redirect("/")
     }
 })
+
+//////////////////////////////////////////
+// prova 
+router.get("/date", (req,res)=>{
+
+    const date = new Date().toTimeString()
+    const hours=new Date().getHours()
+    const mins=new Date().getMinutes()
+    res.send(date+" x "+hours+" m "+mins)
+
+})
