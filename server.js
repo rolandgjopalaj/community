@@ -9,7 +9,7 @@ var fs = require('fs');
 const app = express()
 const router = express.Router();
 const httpPort = 80;
-const httpsPort = 443;
+const httpsPort = 4433;
 
 ////////////////////////////////////////////////////
 // MySql database connection
@@ -17,7 +17,7 @@ var pool = mysql.createPool({
     connectionLimit: 5,
     host: "localhost",
     user: "root",
-    password: "root",
+    password: "",
     database: "community"
 });
 
@@ -37,10 +37,12 @@ const certificate = fs.readFileSync('key/cert.pem', 'utf8');
 const ca = fs.readFileSync('key/chain.pem','utf8');
 const credentials = {key: privateKey, cert: certificate, ca:ca};
 
+
 const httpsServer = https.createServer(credentials, app) 
 httpsServer.listen(httpsPort, ()=>{
     console.log("http server is listenig on port "+httpsPort+" ....")
 })
+
 
 
 // SESSION
@@ -86,6 +88,36 @@ router.post('/login',(req,res) => {
         }
     });
 });
+
+//sign up request
+router.post("/signup", (req, res)=>{
+    console.log(req.body)
+    pool.query("SELECT username FROM auth where username='"+req.body.username+"';", 
+    (err, result, fields) => {
+        if (err) throw err;
+        if(result.length!=0)
+        {// if the user exists
+            console.log("esiste")
+        }else{//the user does'nt exist
+            if(req.body.password===req.body.password2)
+            {   //insert the user in our db
+                pool.query("insert into users(name) values ('"+req.body.name+"');", 
+                (err, result, fields)=>{ if (err) throw err; })
+
+                //get the id of the new user
+                pool.query("select id from users where name= '"+req.body.name+"';", 
+                (err, result, fields)=>{ 
+                    if (err) throw err; 
+                    //insert the credentials of the new user
+                    pool.query("insert into auth(username, password, user) values ('"+req.body.username+"', '"+req.body.password+"', "+result[0].id+");", 
+                    (err2, result2, fields2)=>{ if (err) throw err; })
+                })
+
+            }
+        }
+    });
+    res.redirect("log")
+})
 
 //logout request
 router.get('/logout',(req,res) => {
