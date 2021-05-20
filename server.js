@@ -92,7 +92,7 @@ router.post('/login',(req,res) => {
 //sign up request
 router.post("/signup", (req, res)=>{
     console.log(req.body)
-    pool.query("SELECT username FROM auth where username='"+req.body.username+"';", 
+    /*pool.query("SELECT username FROM auth where username='"+req.body.username+"';", 
     (err, result, fields) => {
         if (err) throw err;
         if(result.length!=0)
@@ -115,7 +115,7 @@ router.post("/signup", (req, res)=>{
 
             }
         }
-    });
+    });*/
     res.redirect("log")
 })
 
@@ -127,7 +127,6 @@ router.get('/logout',(req,res) => {
         }
         res.redirect('/');
     });
-
 });
 
 //user request for the relative reservated data
