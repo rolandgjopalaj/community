@@ -92,7 +92,7 @@ function commentForm(post)
     '	<div class="col-xs-12">	'+								
     '		<div class="form-group">'+
     '           <input type="hidden" id="post" name="post" value="'+post+'">'+
-    '			<textarea id="comm" name="comm" class="form-input" required="" placeholder="Your text"></textarea>'+
+    '			<textarea id="comm" name="comm" class="form-input" required placeholder="Your text"></textarea>'+
     '		</div>'+
     '	</div>'+
     '		<input type="submit" value="send" class="btn btn-primary pull-right">'+

@@ -86,27 +86,30 @@
     </nav> <!-- end of navbar -->
     <!-- end of navbar -->
 
-<!-- efwegwegewgewrgerwgewgewgwegwegwegwegwegwegwegwegwegweg-->
-    <br><br><br><br>
+    <header>
+        <br><br><br><br>
+    </header>
 
-    
     <div>
-        <h1 id="username"></h1>
-        <h1 id="message"></h1>
-        <h1 id="data"></h1>
-        <h1 id="kot"></h1>
-
-        <h1 id="autor"></h1>
-        <h1 id="coment"></h1>
+        <div class="be-comment-block">
+            add a post
+            <form class="form-block" action="/addComment" method="post">
+                <div class="col-xs-12">								
+                    <div class="form-group">
+                        <textarea id="comm" name="comm" class="form-input" required placeholder="Your text"></textarea>
+                        <input type="submit" value="Publish" class="btn btn-primary pull-right">
+                    </div>
+            </form>
+        </div>
     </div>
-    <br>
 
+    <!-- Post Area-->
     <div id="postsArea"></div>
+
     </div>
 
-    <script src="script.js"></script>
-    
-<!-- efwegwegewgewrgerwgewgewgwegwegwegwegwegwegwegwegwegweg-->
+    <script src="script.js"></script> <!-- Input the data -->
+    <!-- end Post Area-->
 
 
     <!-- Footer -->
