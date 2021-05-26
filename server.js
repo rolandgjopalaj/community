@@ -62,7 +62,7 @@ app.use('/', router);
 router.get('/',(req,res) => {
     if(req.session.user) {
         //send user to the /user_profile request to get his data
-        res.redirect("user")
+        res.redirect("prova")
     }
     else {//send user to the home page
         res.redirect("home")
