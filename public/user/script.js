@@ -81,7 +81,7 @@ function comment(user, date, comment, userimg)
 function commentForm(post)
 {
     const commForm =
-    '<form action="" class="card-body" action="/addComment" method="post">'+
+    '<form class="card-body" action="/addComment" method="post">'+
     '   <textarea class="form-control" id="comm" name="comm" rows="3" placeholder="What are you thinking?"></textarea>'+
     '   <input type="hidden" id="post" name="post" value="'+post+'">'+
     '   <br>'+
