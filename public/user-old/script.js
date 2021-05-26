@@ -9,7 +9,7 @@ function request(type){
     }
     return req
 }
-/*
+
 fetch("/user_data", request("")).then(res=>res.json().then(data=>{
 
     document.getElementById("username").innerText= data.user;
@@ -17,7 +17,7 @@ fetch("/user_data", request("")).then(res=>res.json().then(data=>{
     document.getElementById("data").innerText= data.data;
     document.getElementById("kot").innerText= data.kot;
     
-}))*/
+}))
 
 async function getSharedData()
 {
@@ -36,29 +36,26 @@ getSharedData()
 /////////////////////////////////
 //           HTML
 //html to create a post
-function post(user, date, post_, userimg)
+function post(user, date, _post, userimg)
 {
     const post=
-    '<div class="card gedf-card">'+
-    '    <div class="card-header">'+
-    '        <div class="d-flex justify-content-between align-items-center">'+
-    '            <div class="d-flex justify-content-between align-items-center">'+
-    '                <div class="mr-2">'+
-    '                    <img class="rounded-circle" width="45" src="'+userimg+'" alt="">'+
-    '                </div>'+
-    '                <div class="ml-2">'+
-    '                    <div class="h5 m-0">'+user+'</div>'+
-    '                </div>'+
-    '            </div>'+
-    '        </div>'+
-    '    </div>'+
-    '    <div class="card-body">'+
-    '        <div class="text-muted h7 mb-2"> <i class="fa fa-clock-o"></i>Date , time</div>'+
-    '       <p class="card-text">'+post_+
-    '        </p>'+
-    '        <hr class="line">'+
-    '       Comments: 90'+
-    '       <hr class="line">'
+        '<div class="be-comment">'+
+        '	<div class="be-img-comment">'+	
+        '		<img src="'+userimg+'" alt="" class="be-ava-comment">'+
+        '	</div>'+
+        '	<div class="be-comment-content">'+
+        '		<span class="be-comment-name">'+
+        '			<h4>'+user+'</h4>'+
+        '		</span>'+
+        '		<span class="be-comment-time">'+
+        '			<i class="fa fa-clock-o"></i>'+
+        '			'+date+''+
+        '		</span>'+
+        '		<p class="be-comment-text">'+
+        '		'+_post+''+
+        '		</p>'+
+        '	</div>'+
+        '</div>';
     return post;
 }
 
@@ -66,14 +63,23 @@ function post(user, date, post_, userimg)
 function comment(user, date, comment, userimg)
 {
     const comm=
-        '<div class="text-muted h7 mb-2">'+
-        '    <i class="fa fa-clock-o"></i>'+
-        '    <img class="rounded-circle" width="45" src="'+userimg+'" alt=""> &nbsp; '+
-        user+' Date , time'+
-        '</div>'+
-        '<p class="card-text postDiv">'+
-        comment+
-        '</p>'
+        '<div class="be-comment">'+
+        '	<div class="be-img-comment">'+	
+        '		<img src="'+userimg+'" alt="" class="be-ava-comment">'+
+        '	</div>'+
+        '	<div class="be-comment-content">'+
+        '		<span class="be-comment-name">'+
+        '			<h6>'+user+'</h6>'+
+        '		</span>'+
+        '		<span class="be-comment-time">'+
+        '			<i class="fa fa-clock-o"></i>'+
+        '			'+date+''+
+        '		</span>'+
+        '		<p class="be-comment-text">'+
+        '		'+comment+''+
+        '		</p>'+
+        '	</div>'+
+        '</div>';
     return comm;
 }
 
@@ -81,16 +87,23 @@ function comment(user, date, comment, userimg)
 function commentForm(post)
 {
     const commForm =
-    '<form action="" class="card-body" action="/addComment" method="post">'+
-    '   <textarea class="form-control" id="comm" name="comm" rows="3" placeholder="What are you thinking?"></textarea>'+
-    '   <input type="hidden" id="post" name="post" value="'+post+'">'+
-    '   <br>'+
-    '   <button type="submit" class="btn btn-primary">Comment</button>'+
-    '</form>'
+    '<br><br>'+
+    '<form class="form-block" action="/addComment" method="post">'+
+    '	<div class="col-xs-12">	'+								
+    '		<div class="form-group">'+
+    '           <input type="hidden" id="post" name="post" value="'+post+'">'+
+    '			<textarea id="comm" name="comm" class="form-input" required placeholder="Your text"></textarea>'+
+    '		</div>'+
+    '	</div>'+
+    '		<input type="submit" value="send" class="btn btn-primary pull-right">'+
+    '	</div>'+
+    '</form>';
     return commForm
 }
 
-const startNewComentsArea = '<div class="card-body2">';
+
+const startNewPostArea = '<div class="be-comment-block">';
+const startNewComentsArea = '<div class="be-comment-block">';
 
 
 //html to add the posts and the comments in the user page
@@ -102,6 +115,7 @@ function addSharedData(sharedData)
     posts.forEach(postEl => {   //for each post
       
         newArea = newArea +
+            startNewPostArea+  //add the start post html code
             post(postEl.name,"dd",postEl.content,postEl.photo)+   //add the post html code
             startNewComentsArea; //add te start of the comments area html code
 
@@ -112,7 +126,7 @@ function addSharedData(sharedData)
             newArea = newArea + comment(commEl.name,"date",commEl.content, commEl.photo); //add the comment html code
         });
         
-        newArea = newArea + '</div>'+commentForm(postEl.id)+'</div></div><br>';//close the html code
+        newArea = newArea +commentForm(postEl.id)+ '</div></div>';//close the html code
     });
 
     //add all the html code
