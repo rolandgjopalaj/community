@@ -9,15 +9,14 @@ function request(type){
     }
     return req
 }
-/*
-fetch("/user_data", request("")).then(res=>res.json().then(data=>{
 
-    document.getElementById("username").innerText= data.user;
-    document.getElementById("message").innerText= data.message;
-    document.getElementById("data").innerText= data.data;
-    document.getElementById("kot").innerText= data.kot;
+fetch("/user_data", request("")).then(res=>res.json().then(data=>{
+    document.getElementById("username").innerText = data.username;
+    document.getElementById("fullname").innerText = String(data.nome+" "+data.cognome);
+    //document.getElementById("data").innerText = data.data;
+    document.getElementById("nazione").innerText = data.nazione;
     
-}))*/
+}))
 
 async function getSharedData()
 {
@@ -53,11 +52,11 @@ function post(user, date, post_, userimg)
     '        </div>'+
     '    </div>'+
     '    <div class="card-body">'+
-    '        <div class="text-muted h7 mb-2"> <i class="fa fa-clock-o"></i>Date , time</div>'+
+    '        <div class="text-muted h7 mb-2"> <i class="fa fa-clock-o"></i> 25 may 2021</div>'+
     '       <p class="card-text">'+post_+
     '        </p>'+
     '        <hr class="line">'+
-    '       Comments: 90'+
+    '       Comments: 3'+
     '       <hr class="line">'
     return post;
 }
@@ -69,7 +68,7 @@ function comment(user, date, comment, userimg)
         '<div class="text-muted h7 mb-2">'+
         '    <i class="fa fa-clock-o"></i>'+
         '    <img class="rounded-circle" width="45" src="'+userimg+'" alt=""> &nbsp; '+
-        user+' Date , time'+
+        user+' 25 may 2021'+
         '</div>'+
         '<p class="card-text postDiv">'+
         comment+
@@ -82,7 +81,7 @@ function commentForm(post)
 {
     const commForm =
     '<form class="card-body" action="/addComment" method="post">'+
-    '   <textarea class="form-control" id="comm" name="comm" rows="3" placeholder="What are you thinking?"></textarea>'+
+    '   <textarea class="form-control" id="commento" name="commento" rows="3" placeholder="What are you thinking?"></textarea>'+
     '   <input type="hidden" id="post" name="post" value="'+post+'">'+
     '   <br>'+
     '   <button type="submit" class="btn btn-primary">Comment</button>'+
@@ -102,17 +101,16 @@ function addSharedData(sharedData)
     posts.forEach(postEl => {   //for each post
       
         newArea = newArea +
-            post(postEl.name,"dd",postEl.content,postEl.photo)+   //add the post html code
+            post(postEl.username,"dd",postEl.contenuto,postEl.foto)+   //add the post html code
             startNewComentsArea; //add te start of the comments area html code
 
-        const comms = comments.filter(el => el.post==postEl.id);
+        const comms = comments.filter(el => el.post==postEl.codice);
 
-        console.log(comms)
         comms.forEach(commEl =>{  //for each comment
-            newArea = newArea + comment(commEl.name,"date",commEl.content, commEl.photo); //add the comment html code
+            newArea = newArea + comment(commEl.username,"date",commEl.contenuto, commEl.foto); //add the comment html code
         });
         
-        newArea = newArea + '</div>'+commentForm(postEl.id)+'</div></div><br>';//close the html code
+        newArea = newArea + '</div>'+commentForm(postEl.codice)+'</div></div><br>';//close the html code
     });
 
     //add all the html code

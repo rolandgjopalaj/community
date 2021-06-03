@@ -538,7 +538,7 @@ mark {
 	color: #6c757d
 }
 .scroll{
-  	height: 630px;
+	max-height: 100vh;
 	overflow: auto;
 }
 
