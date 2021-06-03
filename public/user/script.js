@@ -52,11 +52,11 @@ function post(user, date, post_, userimg)
     '        </div>'+
     '    </div>'+
     '    <div class="card-body">'+
-    '        <div class="text-muted h7 mb-2"> <i class="fa fa-clock-o"></i> 25 may 2021</div>'+
+    '        <div class="text-muted h7 mb-2"> <i class="fa fa-clock-o"></i> '+date+'</div>'+
     '       <p class="card-text">'+post_+
     '        </p>'+
     '        <hr class="line">'+
-    '       Comments: 3'+
+    '       Comments: '+
     '       <hr class="line">'
     return post;
 }
@@ -68,7 +68,7 @@ function comment(user, date, comment, userimg)
         '<div class="text-muted h7 mb-2">'+
         '    <i class="fa fa-clock-o"></i>'+
         '    <img class="rounded-circle" width="45" src="'+userimg+'" alt=""> &nbsp; '+
-        user+' 25 may 2021'+
+        user+' '+date+
         '</div>'+
         '<p class="card-text postDiv">'+
         comment+
@@ -101,13 +101,13 @@ function addSharedData(sharedData)
     posts.forEach(postEl => {   //for each post
       
         newArea = newArea +
-            post(postEl.username,"dd",postEl.contenuto,postEl.foto)+   //add the post html code
+            post(postEl.username,postEl.data,postEl.contenuto,postEl.foto)+   //add the post html code
             startNewComentsArea; //add te start of the comments area html code
 
         const comms = comments.filter(el => el.post==postEl.codice);
 
         comms.forEach(commEl =>{  //for each comment
-            newArea = newArea + comment(commEl.username,"date",commEl.contenuto, commEl.foto); //add the comment html code
+            newArea = newArea + comment(commEl.username,commEl.data,commEl.contenuto, commEl.foto); //add the comment html code
         });
         
         newArea = newArea + '</div>'+commentForm(postEl.codice)+'</div></div><br>';//close the html code

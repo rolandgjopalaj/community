@@ -6,9 +6,9 @@ const bodyParser = require("body-parser");
 const mysql = require("mysql")
 var fs = require('fs');
 var md5 = require('md5');
+const multer = require('multer');
+const path = require('path');
 const { query } = require("express");
-
-const sendmail = require('sendmail')();
 
 const app = express()
 const router = express.Router();
@@ -112,23 +112,21 @@ router.get('/logout',(req,res) => {
 
 //signUp request
 router.post("/signup", (req,res)=>{
+
     //controll of the password
     if(req.body.password===req.body.password2)
     {
         try{
             //inserimento credenziali
-            pool.query("INSERT INTO credenziali(username, password) VALUES ('"+req.body.username+"', '"+md5(req.body.password)+"');",
-            (err, result, fields)=>{ if(err) throw err })
+            pool.query("INSERT INTO credenziali(username, password) VALUES ('"+req.body.username+"', '"+md5(req.body.password)+"');")
     
-            pool.query("INSERT INTO `utenti`(`nome`,`cognome`,`email`,`foto`, `username`, `nazione`) VALUES ('"+req.body.nome+"','"+req.body.cognome+"','"+req.body.email+"',' ','"+req.body.username+"', 1);",
-            (err, result, fields)=>{ if(err) throw err })
-            //set the session
-            req.session.user = req.body.username;
+            pool.query("INSERT INTO `utenti`(`nome`,`cognome`,`email`, `username`, `nazione`) VALUES ('"+req.body.nome+"','"+req.body.cognome+"','"+req.body.email+"','"+req.body.username+"', 1);")
+            
         }catch{
             console.log("sign in error!!!!")
         }
     }
-    res.redirect("/")
+    res.redirect("/log")
 })
 
 //user request for the relative reservated data
@@ -148,7 +146,7 @@ router.post("/user_data", (req, res)=>{
 router.post("/posts", (req, res)=>{
     if(req.session.user)
     {   //select all the posts 
-        pool.query("SELECT utenti.username, post.codice, post.contenuto, post.data, utenti.foto FROM post, utenti where utenti.id=post.utente;", 
+        pool.query("SELECT utenti.username, post.codice, post.contenuto, post.data, utenti.foto FROM post, utenti where utenti.id=post.utente ORDER by post.codice DESC;", 
         (err, result, fields) =>{
             if (err) throw err;
             //send it to the client
@@ -161,7 +159,7 @@ router.post("/posts", (req, res)=>{
 router.post("/comments", (req, res)=>{
     if(req.session.user)
     {   //select all the comments 
-        pool.query("select utenti.username, commenti.codice, commenti.contenuto, commenti.post, commenti.data, utenti.foto from utenti, commenti, post where commenti.utente=utenti.id and commenti.post =post.codice;", 
+        pool.query("select utenti.username, commenti.codice, commenti.contenuto, commenti.post, commenti.data, utenti.foto from utenti, commenti, post where commenti.utente=utenti.id and commenti.post =post.codice ORDER by commenti.codice ASC;", 
         (err, result, fields)=>{
             if (err) throw err;
             //send it to the client
@@ -170,13 +168,14 @@ router.post("/comments", (req, res)=>{
     }
 })
 
+
 //add a post
 router.post("/addPost", (req, res)=>{
     if(req.session.user)
     {   // insert the new comment
         const date = new Date()
         const exactDate=String(date.getFullYear()+"-"+date.getMonth()+"-"+date.getDate())
-        pool.query("INSERT INTO post(contenuto,  utente) VALUES  ('"+req.body.contenuto+"', "+req.session.userID+");", 
+        pool.query("INSERT INTO post(contenuto, data, utente) VALUES  ('"+req.body.contenuto+"','"+exactDate+"', "+req.session.userID+");", 
         (err, result, fields)=>{
             if (err) throw err;
         })
@@ -191,7 +190,7 @@ router.post("/addComment", (req, res)=>{
     {   // insert the new comment
         const date = new Date()
         const exactDate=String(date.getFullYear()+"-"+date.getMonth()+"-"+date.getDate())
-        pool.query("INSERT INTO commenti(contenuto, post, utente) VALUES  ('"+req.body.commento+"', "+req.body.post+", "+req.session.userID+");", 
+        pool.query("INSERT INTO commenti(contenuto,data, post, utente) VALUES  ('"+req.body.commento+"','"+exactDate+"', "+req.body.post+", "+req.session.userID+");", 
         (err, result, fields)=>{
             if (err) throw err;
         })
@@ -201,7 +200,7 @@ router.post("/addComment", (req, res)=>{
 
 
 
-
+//conversione
  router.post("/md5",(req, res)=>{
      const result=md5(req.body.txt)
      res.send(result)
