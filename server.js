@@ -6,8 +6,6 @@ const bodyParser = require("body-parser");
 const mysql = require("mysql")
 var fs = require('fs');
 var md5 = require('md5');
-const multer = require('multer');
-const path = require('path');
 const { query } = require("express");
 
 const app = express()
@@ -60,7 +58,7 @@ app.use(session({
 app.use(express.static("public"));
 
 app.use('/', router);
-
+var user = "user"
 /////////////////////////////////////////////
 // Requests from the clients
 
@@ -68,12 +66,21 @@ app.use('/', router);
 router.get('/',(req,res) => {
     if(req.session.user) {
         //send user to the /user_profile request to get his data
-        res.redirect("user")
+        res.redirect(user)
     }
     else {//send user to the home page
         res.redirect("home")
     }
 });
+
+router.get('/changeColor', (req,res) =>{
+    if(user=="user"){
+        user="userW"
+    }else{
+        user="user"
+    }
+    res.redirect("/")
+})
 
 //login request
 router.post('/login',(req,res) => {
@@ -90,7 +97,11 @@ router.post('/login',(req,res) => {
                     if(err) throw err
                     req.session.userID = result[0].id
                     req.session.user = req.body.username;
-                    res.redirect("/") 
+                    if(req.body.type=="app"){
+                        res.send({state: "ok"})
+                    }else{
+                        res.redirect("/") 
+                    }
                 })
             }
         }catch(error){
@@ -120,7 +131,7 @@ router.post("/signup", (req,res)=>{
             //inserimento credenziali
             pool.query("INSERT INTO credenziali(username, password) VALUES ('"+req.body.username+"', '"+md5(req.body.password)+"');")
     
-            pool.query("INSERT INTO `utenti`(`nome`,`cognome`,`email`, `username`, `nazione`) VALUES ('"+req.body.nome+"','"+req.body.cognome+"','"+req.body.email+"','"+req.body.username+"', 1);")
+            pool.query("INSERT INTO `utenti`(`nome`,`cognome`,`email`, `username`, `nazione`) VALUES ('"+req.body.nome+"','"+req.body.cognome+"','"+req.body.email+"','"+req.body.username+"', "+req.body.nazione+");")
             
         }catch{
             console.log("sign in error!!!!")
@@ -155,6 +166,19 @@ router.post("/posts", (req, res)=>{
     }
 })
 
+//select all languages 
+router.post("/allLanguages", (req, res)=>{
+    if(req.session.user)
+    {   //select all the posts 
+        pool.query("SELECT * FROM linguaggi;", 
+        (err, result, fields) =>{
+            if (err) throw err;
+            //send it to the client
+            res.json(result)
+        });
+    }
+})
+
 //get the comments of a post
 router.post("/comments", (req, res)=>{
     if(req.session.user)
@@ -168,6 +192,42 @@ router.post("/comments", (req, res)=>{
     }
 })
 
+//get the posts number
+router.post("/postNR", (req, res)=>{
+    if(req.session.user)
+    {   //select all the comments 
+        pool.query("select COUNT(post.codice) as nr from post where post.utente="+req.session.userID+";", 
+        (err, result, fields)=>{
+            if (err) throw err;
+            //send it to the client
+            res.json(result[0])
+        })
+    }
+})
+
+//get the comments number
+router.post("/commNR", (req, res)=>{
+    if(req.session.user)
+    {   //select all the comments 
+        pool.query("select COUNT(commenti.codice) as nr from commenti where commenti.utente="+req.session.userID+";", 
+        (err, result, fields)=>{
+            if (err) throw err;
+            //send it to the client
+            res.json(result[0])
+        })
+    }
+})
+//get the comments of a post
+router.post("/linguaggi", (req, res)=>{
+    if(req.session.user)
+    {   //select all the languages 
+        pool.query("select linguaggi.codice ,nome as linguaggio from linguaggi, conosce where conosce.linguaggio=linguaggi.codice and conosce.utente="+req.session.userID+";", 
+        (err, result, fields)=>{
+            //send it to the client
+            res.json(result)
+        })   
+    }
+})
 
 //add a post
 router.post("/addPost", (req, res)=>{
@@ -185,7 +245,6 @@ router.post("/addPost", (req, res)=>{
 
 //add a comment to a post
 router.post("/addComment", (req, res)=>{
-    console.log(req.body)
     if(req.session.user)
     {   // insert the new comment
         const date = new Date()
@@ -198,10 +257,30 @@ router.post("/addComment", (req, res)=>{
     }
 })
 
+//ad a new language to a user
+router.post("/addLanguage", (req, res)=>{
+    if(req.session.user)
+    {   // insert the new comment
+        pool.query("INSERT INTO `conosce` (`linguaggio`, `utente`) VALUES ("+req.body.send+", "+req.session.userID+");", 
+        (err, result, fields)=>{})
+        res.redirect("/")
+    }
+})
 
+//get the comments of a post
+router.post("/nations", (req, res)=>{
+    //select all the nations 
+    pool.query("select * from nazioni;", 
+    (err, result, fields)=>{
+        if (err) throw err;
+        //send it to the client
+        res.json(result)
+    })
+})
 
-//conversione
- router.post("/md5",(req, res)=>{
-     const result=md5(req.body.txt)
-     res.send(result)
- })
+///////////
+
+router.post("/mLog", (req, res)=>{
+    console.log(req.body)
+    
+})
