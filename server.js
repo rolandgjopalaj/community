@@ -77,7 +77,7 @@ router.get('/',(req,res) => {
 router.post('/login',(req,res) => {
     ///////////////////////////////////////////////////////////
     // database controll for the authentication
-    pool.query("SELECT username FROM credenziali where username='"+req.body.username+"' and password='"+md5(req.body.password)+"';", 
+    pool.query("SELECT username FROM credenziali where username="+pool.escape(req.body.username)+" and password="+pool.escape(md5(req.body.password))+";", 
     (err, result, fields) => {
         if (err) throw err;
         try{
