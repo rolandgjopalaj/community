@@ -4,6 +4,7 @@ const http = require("http")
 const https = require("https")
 const bodyParser = require("body-parser");
 const mysql = require("mysql")
+const axios = require("axios")
 var fs = require('fs');
 var md5 = require('md5');
 const { query } = require("express");
@@ -58,7 +59,6 @@ app.use(session({
 app.use(express.static("public"));
 
 app.use('/', router);
-var user = "user"
 /////////////////////////////////////////////
 // Requests from the clients
 
@@ -66,21 +66,12 @@ var user = "user"
 router.get('/',(req,res) => {
     if(req.session.user) {
         //send user to the /user_profile request to get his data
-        res.redirect(user)
+        res.redirect("user")
     }
     else {//send user to the home page
         res.redirect("home")
     }
 });
-
-router.get('/changeColor', (req,res) =>{
-    if(user=="user"){
-        user="userW"
-    }else{
-        user="user"
-    }
-    res.redirect("/")
-})
 
 //login request
 router.post('/login',(req,res) => {
@@ -278,6 +269,15 @@ router.post("/nations", (req, res)=>{
     })
 })
 
+//get notizie from api
+router.post("/notizie",(req,res)=>{
+    if(req.session.user)
+    {
+        axios("http://localhost:3000/notizie").then((response)=>{
+            res.send(response.data)
+        })
+    }
+})
 ///////////
 
 router.post("/mLog", (req, res)=>{

@@ -34,6 +34,10 @@ fetch("/linguaggi", request("")).then(res=>res.json().then(data=>{
     document.getElementById("linguaggi").innerText = linguaggi;
 }))
 
+fetch("/notizie", request("")).then(res=>res.json().then(data=>{
+    addNews(data)
+}))
+
 async function getSharedData()
 {
     var sharedData=[]
@@ -151,3 +155,41 @@ addLanguagesBtn.addEventListener("click",async()=>{
     await location.reload()
 })
 
+//add news
+function addNews(data){
+    var newArea="";
+    data.map((el)=>{
+        newArea+=news(el.person, el.title, el.content)
+    })
+    document.getElementById("news").innerHTML =newArea;
+}
+
+function news(person, title, content, link){
+    const x = 
+    '<div class="card gedf-card">'+
+    '<div class="card-body">'+
+    '    <h5 class="card-title">'+person+'</h5>'+
+    '    <h6 class="card-subtitle mb-2 text-muted">'+title+'</h6>'+
+    '    <p class="card-text">'+content+'</p>'+
+    '    <a href="'+link+'" class="card-link">Check here</a>'+
+    '</div>'+
+    '</div>'+
+    '<br>'
+    return x
+}
+
+var color="black"
+
+const changeColorBtn= document.getElementById("changeColor")
+
+changeColorBtn.addEventListener("click",()=>{
+    
+    if(color=="black"){
+        document.getElementById("style").href="styleW.css";
+        color="white"
+    }else if(color=="white"){
+        document.getElementById("style").href="style.css";
+        color="black"
+    }
+    
+})

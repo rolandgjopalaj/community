@@ -1,0 +1,18 @@
+{
+  "notizie": [
+    {
+      "id": 1,
+      "person": "John",
+      "title": "Social Media",
+      "content": "Today one of you team created a new social media application.",
+      "link": ""
+    },
+    {
+      "id": 2,
+      "person": "Mark",
+      "title": "Tutorial",
+      "content": "Here you can find new tutorials for Reac-Native.",
+      "link": ""
+    }
+  ]
+}
