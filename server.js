@@ -278,9 +278,3 @@ router.post("/notizie",(req,res)=>{
         })
     }
 })
-///////////
-
-router.post("/mLog", (req, res)=>{
-    console.log(req.body)
-    
-})
