@@ -59,6 +59,8 @@ app.use(session({
 app.use(express.static("public"));
 
 app.use('/', router);
+
+var color="b"
 /////////////////////////////////////////////
 // Requests from the clients
 
@@ -66,10 +68,22 @@ app.use('/', router);
 router.get('/',(req,res) => {
     if(req.session.user) {
         //send user to the /user_profile request to get his data
-        res.redirect("user")
+        res.redirect("user/?color="+color)
     }
     else {//send user to the home page
         res.redirect("home")
+    }
+});
+
+//Entry point
+router.get('/changeColor',(req,res) => {
+    if(req.session.user) {
+        if(color=="b"){
+            color="w"
+        }else{
+            color="b"
+        }
+        res.redirect("/")
     }
 });
 
@@ -83,7 +97,7 @@ router.post('/login',(req,res) => {
         try{
             if(result[0].username === req.body.username)
             {// if the password is correct the user will be authenticated
-                pool.query("select id from utenti where username='"+req.body.username+"';",
+                pool.query("select id from utenti where username="+pool.escape(req.body.username)+";",
                 (err, result, fields)=>{
                     if(err) throw err
                     req.session.userID = result[0].id
@@ -120,9 +134,9 @@ router.post("/signup", (req,res)=>{
     {
         try{
             //inserimento credenziali
-            pool.query("INSERT INTO credenziali(username, password) VALUES ('"+req.body.username+"', '"+md5(req.body.password)+"');")
+            pool.query("INSERT INTO credenziali(username, password) VALUES ("+pool.escape(req.body.username)+", "+pool.escape(md5(req.body.password))+");")
     
-            pool.query("INSERT INTO `utenti`(`nome`,`cognome`,`email`, `username`, `nazione`) VALUES ('"+req.body.nome+"','"+req.body.cognome+"','"+req.body.email+"','"+req.body.username+"', "+req.body.nazione+");")
+            pool.query("INSERT INTO `utenti`(`nome`,`cognome`,`email`, `username`, `nazione`) VALUES ("+pool.escape(req.body.nome)+","+pool.escape(req.body.cognome)+","+pool.escape(req.body.email)+","+pool.escape(req.body.username)+", "+pool.escape(req.body.nazione)+");")
             
         }catch{
             console.log("sign in error!!!!")
@@ -135,7 +149,7 @@ router.post("/signup", (req,res)=>{
 router.post("/user_data", (req, res)=>{
     if(req.session.user)
     {   // send to the user the data
-        pool.query("SELECT utenti.nome, utenti.cognome, utenti.foto, utenti.username, nazioni.nome as nazione FROM utenti, nazioni WHERE utenti.nazione=nazioni.codice and utenti.username='"+req.session.user+"';", 
+        pool.query("SELECT utenti.nome, utenti.cognome, utenti.foto, utenti.username, nazioni.nome as nazione FROM utenti, nazioni WHERE utenti.nazione=nazioni.codice and utenti.username="+pool.escape(req.session.user)+";", 
         (err, result, fields) =>{
             if (err) throw err;
             //send it to the client
@@ -187,7 +201,7 @@ router.post("/comments", (req, res)=>{
 router.post("/postNR", (req, res)=>{
     if(req.session.user)
     {   //select all the comments 
-        pool.query("select COUNT(post.codice) as nr from post where post.utente="+req.session.userID+";", 
+        pool.query("select COUNT(post.codice) as nr from post where post.utente="+pool.escape(req.session.userID)+";", 
         (err, result, fields)=>{
             if (err) throw err;
             //send it to the client
@@ -200,7 +214,7 @@ router.post("/postNR", (req, res)=>{
 router.post("/commNR", (req, res)=>{
     if(req.session.user)
     {   //select all the comments 
-        pool.query("select COUNT(commenti.codice) as nr from commenti where commenti.utente="+req.session.userID+";", 
+        pool.query("select COUNT(commenti.codice) as nr from commenti where commenti.utente="+pool.escape(req.session.userID)+";", 
         (err, result, fields)=>{
             if (err) throw err;
             //send it to the client
@@ -212,7 +226,7 @@ router.post("/commNR", (req, res)=>{
 router.post("/linguaggi", (req, res)=>{
     if(req.session.user)
     {   //select all the languages 
-        pool.query("select linguaggi.codice ,nome as linguaggio from linguaggi, conosce where conosce.linguaggio=linguaggi.codice and conosce.utente="+req.session.userID+";", 
+        pool.query("select linguaggi.codice ,nome as linguaggio from linguaggi, conosce where conosce.linguaggio=linguaggi.codice and conosce.utente="+pool.escape(req.session.userID)+";", 
         (err, result, fields)=>{
             //send it to the client
             res.json(result)
@@ -226,7 +240,7 @@ router.post("/addPost", (req, res)=>{
     {   // insert the new comment
         const date = new Date()
         const exactDate=String(date.getFullYear()+"-"+date.getMonth()+"-"+date.getDate())
-        pool.query("INSERT INTO post(contenuto, data, utente) VALUES  ('"+req.body.contenuto+"','"+exactDate+"', "+req.session.userID+");", 
+        pool.query("INSERT INTO post(contenuto, data, utente) VALUES  ("+pool.escape(req.body.contenuto)+","+pool.escape(exactDate)+", "+pool.escape(req.session.userID)+");", 
         (err, result, fields)=>{
             if (err) throw err;
         })
@@ -240,7 +254,7 @@ router.post("/addComment", (req, res)=>{
     {   // insert the new comment
         const date = new Date()
         const exactDate=String(date.getFullYear()+"-"+date.getMonth()+"-"+date.getDate())
-        pool.query("INSERT INTO commenti(contenuto,data, post, utente) VALUES  ('"+req.body.commento+"','"+exactDate+"', "+req.body.post+", "+req.session.userID+");", 
+        pool.query("INSERT INTO commenti(contenuto,data, post, utente) VALUES  ("+pool.escape(req.body.commento)+","+pool.escape(exactDate)+", "+pool.escape(req.body.post)+", "+pool.escape(req.session.userID)+");", 
         (err, result, fields)=>{
             if (err) throw err;
         })
@@ -252,7 +266,7 @@ router.post("/addComment", (req, res)=>{
 router.post("/addLanguage", (req, res)=>{
     if(req.session.user)
     {   // insert the new comment
-        pool.query("INSERT INTO `conosce` (`linguaggio`, `utente`) VALUES ("+req.body.send+", "+req.session.userID+");", 
+        pool.query("INSERT INTO `conosce` (`linguaggio`, `utente`) VALUES ("+pool.escape(req.body.send)+", "+pool.escape(req.session.userID)+");", 
         (err, result, fields)=>{})
         res.redirect("/")
     }

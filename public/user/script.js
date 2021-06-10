@@ -1,3 +1,14 @@
+const urlParams = new URLSearchParams(window.location.search);
+const color = urlParams.get('color')
+
+console.log(color)
+
+if(color=="b"){
+    document.getElementById("style").href="style.css";
+}else{
+    document.getElementById("style").href="styleW.css";
+}
+
 //to create a request 
 function request(x){
     const req ={
@@ -178,6 +189,7 @@ function news(person, title, content, link){
     return x
 }
 
+/*
 var color="black"
 
 const changeColorBtn= document.getElementById("changeColor")
@@ -193,3 +205,4 @@ changeColorBtn.addEventListener("click",()=>{
     }
     
 })
+*/
