@@ -60,7 +60,6 @@ app.use(express.static("public"));
 
 app.use('/', router);
 
-var color="b"
 /////////////////////////////////////////////
 // Requests from the clients
 
@@ -68,21 +67,26 @@ var color="b"
 router.get('/',(req,res) => {
     if(req.session.user) {
         //send user to the /user_profile request to get his data
-        res.redirect("user/?color="+color)
+        res.redirect("user")
     }
     else {//send user to the home page
         res.redirect("home")
     }
 });
 
-//Entry point
+//change the color of the theme
 router.get('/changeColor',(req,res) => {
     if(req.session.user) {
-        if(color=="b"){
-            color="w"
-        }else{
-            color="b"
-        }
+        pool.query("SELECT utenti.colore FROM utenti WHERE utenti.username="+pool.escape(req.session.user)+";", 
+        (err, result, fields) =>{
+            if(result[0].colore=="b"){
+                pool.query("UPDATE utenti SET colore='w' WHERE utenti.id="+req.session.userID+";",
+                    (err, result, fields)=>{})
+            }else{
+                pool.query("UPDATE utenti SET colore='b' WHERE utenti.id="+req.session.userID+";",
+                    (err, result, fields)=>{})
+            }
+        });
         res.redirect("/")
     }
 });
@@ -149,7 +153,7 @@ router.post("/signup", (req,res)=>{
 router.post("/user_data", (req, res)=>{
     if(req.session.user)
     {   // send to the user the data
-        pool.query("SELECT utenti.nome, utenti.cognome, utenti.foto, utenti.username, nazioni.nome as nazione FROM utenti, nazioni WHERE utenti.nazione=nazioni.codice and utenti.username="+pool.escape(req.session.user)+";", 
+        pool.query("SELECT utenti.nome, utenti.cognome, utenti.foto, utenti.username, nazioni.nome as nazione, utenti.colore FROM utenti, nazioni WHERE utenti.nazione=nazioni.codice and utenti.username="+pool.escape(req.session.user)+";", 
         (err, result, fields) =>{
             if (err) throw err;
             //send it to the client
@@ -289,6 +293,6 @@ router.post("/notizie",(req,res)=>{
     {
         axios("http://localhost:3000/notizie").then((response)=>{
             res.send(response.data)
-        })
+        }).catch(err => err);
     }
 })

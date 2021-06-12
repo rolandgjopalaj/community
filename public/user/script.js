@@ -1,14 +1,3 @@
-const urlParams = new URLSearchParams(window.location.search);
-const color = urlParams.get('color')
-
-console.log(color)
-
-if(color=="b"){
-    document.getElementById("style").href="style.css";
-}else{
-    document.getElementById("style").href="styleW.css";
-}
-
 //to create a request 
 function request(x){
     const req ={
@@ -26,6 +15,11 @@ fetch("/user_data", request("")).then(res=>res.json().then(data=>{
     document.getElementById("fullname").innerText = String(data.nome+" "+data.cognome);
     document.getElementById("foto").src=data.foto;
     document.getElementById("nazione").innerText = data.nazione;
+    if(data.colore=="b"){
+        document.getElementById("style").href="style.css";
+    }else{
+        document.getElementById("style").href="styleW.css";
+    }
     
 }))
 fetch("/postNR", request("")).then(res=>res.json().then(data=>{
